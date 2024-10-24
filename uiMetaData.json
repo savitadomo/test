@@ -1,0 +1,196 @@
+{
+  "name": "Datagrid Conn",
+  "connectorType": "datagrid",
+  "userId": null,
+  "domoClientId": "",
+  "domoClientSecret": "",
+  "additionalInfo": "",
+  "reportLength": 0,
+  "days": 7,
+  "reports": [
+    "Test",
+    "New"
+  ],
+  "advancedReports": null,
+  "guid": "de23f034-1bc1-438a-bda1-16f70d99a7fe",
+  "publishPrivate": true,
+  "visibilityType": {
+    "label": null,
+    "value": "private"
+  },
+  "parameters": [
+    {
+      "name": "test",
+      "type": "string",
+      "required": null,
+      "order": null,
+      "options": null,
+      "command": null,
+      "helpText": "nww",
+      "showWhen": null,
+      "value": null,
+      "dateSelectorValue": null,
+      "$$hashKey": "object:281"
+    }
+  ],
+  "commands": null,
+  "showAdvanced": true,
+  "submittedVersion": 0,
+  "submittedMajorVersion": 0,
+  "publishedVersion": 0,
+  "workbenchEnabled": false,
+  "dataProviderCreated": false,
+  "description": null,
+  "tags": null,
+  "successResponseDefinition": null,
+  "errorResponseDefinition": null,
+  "updateCode": false,
+  "requestingCustomerId": null,
+  "ownerId": null,
+  "ownerCustomerId": null,
+  "parentGuid": null,
+  "testingProfiles": [
+    {
+      "name": "NewTestingProfile",
+      "value": [
+        {
+          "name": "test",
+          "type": "string",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": "nww",
+          "showWhen": null,
+          "value": "new1",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "int",
+          "type": "integer",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": "new1",
+          "value": "1",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": null,
+          "value": "test",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "drp",
+          "type": "dropdown",
+          "required": null,
+          "order": null,
+          "options": [
+            {
+              "name": "test",
+              "value": "test"
+            },
+            {
+              "name": "new",
+              "value": "new"
+            }
+          ],
+          "command": null,
+          "helpText": null,
+          "showWhen": "then",
+          "value": "new",
+          "dateSelectorValue": null
+        }
+      ]
+    },
+    {
+      "name": "Test 2",
+      "value": [
+        {
+          "name": "test",
+          "type": "string",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": "nww",
+          "showWhen": null,
+          "value": "new3",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "int",
+          "type": "integer",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": "new1",
+          "value": "2",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": null,
+          "value": "test1",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "drp",
+          "type": "dropdown",
+          "required": null,
+          "order": null,
+          "options": [
+            {
+              "name": "test",
+              "value": "test"
+            },
+            {
+              "name": "new",
+              "value": "new"
+            }
+          ],
+          "command": null,
+          "helpText": null,
+          "showWhen": "then",
+          "value": "test",
+          "dateSelectorValue": null
+        }
+      ]
+    },
+    {
+      "name": "Test1",
+      "value": [
+        {
+          "name": "test",
+          "type": "string",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": "nww",
+          "showWhen": null,
+          "value": "",
+          "dateSelectorValue": null
+        }
+      ]
+    }
+  ],
+  "visible": true
+}

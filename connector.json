@@ -1,0 +1,242 @@
+{
+  "images": [
+    "iconWithBackground",
+    "logoWithoutBackground",
+    "logoWithBackground",
+    "iconWithoutBackground"
+  ],
+  "name": "Datagrid Conn",
+  "connectorType": "datagrid",
+  "type": "basic",
+  "authCodeText": "//This logging is here for testing! Remove before publishing your connector\r\nDOMO.log('metadata.account.username: ' + metadata.account.username);\r\nDOMO.log('metadata.account.password: ' + metadata.account.password); \r\n\r\nvar encodedData = DOMO.b64EncodeUnicode(metadata.account.username + ':' + metadata.account.password);\r\n\r\nhttprequest.addHeader('Authorization', 'Basic ' + encodedData);\r\n\r\nvar res = httprequest.get('https://developer.domo.com/samplecrm');  \r\n\r\nif (httprequest.getStatusCode() == 200) {\r\n  auth.authenticationSuccess();\r\n} else {\r\n  auth.authenticationFailed('Your username and password are incorrect');\r\n}",
+  "userName": "example",
+  "password": "test",
+  "apiKey": "",
+  "clientKey": "",
+  "clientSecret": "",
+  "userId": null,
+  "customAccountFields": [
+    {
+      "label": "test",
+      "value": "111",
+      "type": "text"
+    }
+  ],
+  "domoClientId": "",
+  "domoClientSecret": "",
+  "authorizationURL": null,
+  "accessTokenURL": null,
+  "scope": null,
+  "additionalParameters": null,
+  "oauthUserName": null,
+  "oauthPassword": null,
+  "additionalInfo": "",
+  "reportLength": 0,
+  "days": 7,
+  "processData": "DOMO.log('metadata.report: ' + metadata.report);\r\n\r\nif (metadata.report == 'Past Hour') {\r\n  pastHour();\r\n}\r\nelse if (metadata.report == 'Past Day') {\r\n  pastDay();\r\n}\r\nelse if (metadata.report == 'Past 7 Days') {\r\n  past7Days();\r\n}\r\nelse if (metadata.report == 'Past 30 Days') {\r\n  past30Days();\r\n}\r\nelse if (metadata.report == 'Pull data from the last X day(s)') {\r\n  pastXDays();\r\n}\r\nelse {\r\n  DOMO.log(metadata.report + ' is not a supported report.');\r\n  datagrid.error(0, metadata.report + ' is not a supported report.');\r\n}\r\n\r\n// Report-specific functions\r\nfunction pastHour() {\r\n  DOMO.log('pastHour');\r\n  processRecords('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson');\r\n}\r\n  \r\nfunction pastDay() {\r\n  DOMO.log('pastDay');\r\n  processRecords('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson');\r\n}\r\n\r\nfunction past7Days() {\r\n  DOMO.log('past7Days');\r\n  processRecords('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson');\r\n}\r\n\r\nfunction past30Days() {\r\n  DOMO.log('past30Days');\r\n  processRecords('http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson');\r\n}\r\n\r\nfunction pastXDays() {\r\n  DOMO.log('pastXDays');\r\n  processRecords(\r\n 'http://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=' + \r\n    calculateEndDate() + '&endtime=' + currentDate()\r\n    );\r\n}\r\n\r\n//Time calculation functions\r\nfunction calculateEndDate() {\r\n  var now = new Date(); // This will be UTC when running server side\r\n  var end = new Date(now.getTime() - (metadata.days * 1000 * 60 * 60 * 24) );\r\n  \r\n  DOMO.log('Start: ' + now);\r\n  DOMO.log('End: ' + end);\r\n  \r\n  return end.getFullYear() + '-' + \r\n         addOneLeadingZero(end.getMonth() + 1) + '-' + \r\n         addOneLeadingZero(end.getDate());\r\n}\r\n\r\nfunction currentDate() {\r\n  var now = new Date(); // This will be UTC when running server side\r\n  return now.getFullYear() + '-' + \r\n         addOneLeadingZero(now.getMonth() + 1) + '-' + \r\n         addOneLeadingZero(now.getDate());\r\n}\r\n\r\nfunction addOneLeadingZero(value) {\r\n  if(value < 10 && value > -10){ \r\n    value = '0' + value;\r\n  }\r\n  return value;\r\n}\r\n\r\n// Function to make call and build dataset\r\nfunction processRecords(url) {\r\n  var res = httprequest.get(url);\r\n  DOMO.log('res' + res);\r\n  \r\n  var data = JSON.parse(res).features;\r\n  // Adding columns\r\n  datagrid.addColumn('Place', datagrid.DATA_TYPE_STRING);\r\n  datagrid.addColumn('Magnitude', datagrid.DATA_TYPE_STRING);\r\n  datagrid.addColumn('Time', datagrid.DATA_TYPE_DATETIME); // date format needs to be yyyy-MM-dd'T'HH:mm:ss\r\n  datagrid.addColumn('URL', datagrid.DATA_TYPE_STRING);\r\n\r\n  DOMO.log('data: ');\r\n  \r\n  for(var i = 0; i < data.length; i++){\r\n    var quakeDetails = data[i].properties;\r\n    // Adding data, cell by cell\r\n    datagrid.addCell(quakeDetails.place);\r\n    datagrid.addCell(quakeDetails.mag);\r\n    datagrid.addCell(formatTime(quakeDetails.time));\r\n    datagrid.addCell(quakeDetails.url);\r\n    // REMEMBER TO END ROW!\r\n    datagrid.endRow();\r\n  }\r\n}\r\n\r\n// Function to convert date format from USGA to date format required by Domo\r\nfunction formatTime(value) {\r\n  var d = new Date(value);\r\n  return d.getFullYear() + '-' +  \r\n         addOneLeadingZero(d.getMonth() + 1) + '-' + \r\n         addOneLeadingZero(d.getDate()) + 'T' + \r\n         addOneLeadingZero(d.getHours()) + ':' + \r\n         addOneLeadingZero(d.getMinutes()) + ':' + \r\n         addOneLeadingZero(d.getSeconds());\r\n}",
+  "reports": [
+    "Test",
+    "New"
+  ],
+  "advancedReports": null,
+  "guid": "de23f034-1bc1-438a-bda1-16f70d99a7fe",
+  "authorName": "Test",
+  "accesstokenMethod": null,
+  "tokenAddlParams": null,
+  "publishPrivate": true,
+  "visibilityType": {
+    "label": null,
+    "value": "private"
+  },
+  "parameters": [
+    {
+      "name": "test",
+      "type": "string",
+      "required": null,
+      "order": null,
+      "options": null,
+      "command": null,
+      "helpText": "nww",
+      "showWhen": null,
+      "value": null,
+      "dateSelectorValue": null,
+      "$$hashKey": "object:281"
+    }
+  ],
+  "commands": null,
+  "showAdvanced": true,
+  "submittedVersion": 0,
+  "submittedMajorVersion": 0,
+  "publishedVersion": 0,
+  "workbenchEnabled": false,
+  "dataProviderCreated": false,
+  "description": null,
+  "tags": null,
+  "successResponseDefinition": null,
+  "errorResponseDefinition": null,
+  "updateCode": false,
+  "requestingCustomerId": null,
+  "ownerId": null,
+  "ownerCustomerId": null,
+  "parentGuid": null,
+  "testingProfiles": [
+    {
+      "name": "NewTestingProfile",
+      "value": [
+        {
+          "name": "test",
+          "type": "string",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": "nww",
+          "showWhen": null,
+          "value": "new1",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "int",
+          "type": "integer",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": "new1",
+          "value": "1",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": null,
+          "value": "test",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "drp",
+          "type": "dropdown",
+          "required": null,
+          "order": null,
+          "options": [
+            {
+              "name": "test",
+              "value": "test"
+            },
+            {
+              "name": "new",
+              "value": "new"
+            }
+          ],
+          "command": null,
+          "helpText": null,
+          "showWhen": "then",
+          "value": "new",
+          "dateSelectorValue": null
+        }
+      ]
+    },
+    {
+      "name": "Test 2",
+      "value": [
+        {
+          "name": "test",
+          "type": "string",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": "nww",
+          "showWhen": null,
+          "value": "new3",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "int",
+          "type": "integer",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": "new1",
+          "value": "2",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "text",
+          "type": "text",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": null,
+          "showWhen": null,
+          "value": "test1",
+          "dateSelectorValue": null
+        },
+        {
+          "name": "drp",
+          "type": "dropdown",
+          "required": null,
+          "order": null,
+          "options": [
+            {
+              "name": "test",
+              "value": "test"
+            },
+            {
+              "name": "new",
+              "value": "new"
+            }
+          ],
+          "command": null,
+          "helpText": null,
+          "showWhen": "then",
+          "value": "test",
+          "dateSelectorValue": null
+        }
+      ]
+    },
+    {
+      "name": "Test1",
+      "value": [
+        {
+          "name": "test",
+          "type": "string",
+          "required": null,
+          "order": null,
+          "options": null,
+          "command": null,
+          "helpText": "nww",
+          "showWhen": null,
+          "value": "",
+          "dateSelectorValue": null
+        }
+      ]
+    }
+  ],
+  "pacerLimits": null,
+  "enableForAppstore": false,
+  "testingValue": {
+    "test": "new"
+  },
+  "libraries": null,
+  "transferUserId": null,
+  "transferCustomerId": null,
+  "stakeholders": null,
+  "repository": null,
+  "visible": true,
+  "validImages": [
+    "logoWithoutBackground",
+    "iconWithBackground",
+    "iconWithoutBackground",
+    "logoWithBackground"
+  ]
+}
